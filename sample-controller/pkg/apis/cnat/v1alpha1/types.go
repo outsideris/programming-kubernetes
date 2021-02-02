@@ -16,39 +16,27 @@ limitations under the License.
 
 package v1alpha1
 
-import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
-
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// Foo is a specification for a Foo resource
-type Foo struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+const (
+	PhasePending = "PENDING"
+	PhaseRunning = "RUNNING"
+	PhaseDone    = "DONE"
+)
 
-	Spec   FooSpec   `json:"spec"`
-	Status FooStatus `json:"status"`
+// AtSpec defines the desired state of At
+type AtSpec struct {
+	// Schedule is the desired time the command is supposed to be executed.
+	// Note: the format used here is UTC time https://www.utctime.net
+	Schedule string `json:"schedule,omitempty"`
+	// Command is the desired command (executed in a Bash shell) to be executed.
+	Command string `json:"command,omitempty"`
 }
 
-// FooSpec is the spec for a Foo resource
-type FooSpec struct {
-	DeploymentName string `json:"deploymentName"`
-	Replicas       *int32 `json:"replicas"`
-}
-
-// FooStatus is the status for a Foo resource
-type FooStatus struct {
-	AvailableReplicas int32 `json:"availableReplicas"`
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// FooList is a list of Foo resources
-type FooList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []Foo `json:"items"`
+// AtStatus defines the observed state of At
+type AtStatus struct {
+	// Phase represents the state of the schedule: until the command is
+	// executed it is PENDING, afterwards it is DONE.
+	Phase string `json:"phase,omitempty"`
 }
