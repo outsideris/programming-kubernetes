@@ -1,3 +1,7 @@
 domain: my.domain
 repo: k8s.io
+resources:
+- group: cnat
+  kind: At
+  version: v1alpha1
 version: "2"
