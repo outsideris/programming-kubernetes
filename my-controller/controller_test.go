@@ -18,6 +18,7 @@ package main
 
 import (
 	"fmt"
+	mycontroller "my-controller/pkg/apis/mycontroller/v1alpha1"
 	"reflect"
 	"testing"
 	"time"
@@ -33,9 +34,9 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 
-	samplecontroller "k8s.io/sample-controller/pkg/apis/samplecontroller/v1alpha1"
-	"k8s.io/sample-controller/pkg/generated/clientset/versioned/fake"
-	informers "k8s.io/sample-controller/pkg/generated/informers/externalversions"
+	mycontroller "my-controller/pkg/apis/mycontroller/v1alpha1"
+	"my-controller/pkg/generated/clientset/versioned/fake"
+	informers "my-controller/pkg/generated/informers/externalversions"
 )
 
 var (
@@ -49,7 +50,7 @@ type fixture struct {
 	client     *fake.Clientset
 	kubeclient *k8sfake.Clientset
 	// Objects to put in the store.
-	fooLister        []*samplecontroller.Foo
+	fooLister        []*mycontroller.Foo
 	deploymentLister []*apps.Deployment
 	// Actions expected to happen on the client.
 	kubeactions []core.Action
@@ -67,14 +68,14 @@ func newFixture(t *testing.T) *fixture {
 	return f
 }
 
-func newFoo(name string, replicas *int32) *samplecontroller.Foo {
-	return &samplecontroller.Foo{
-		TypeMeta: metav1.TypeMeta{APIVersion: samplecontroller.SchemeGroupVersion.String()},
+func newFoo(name string, replicas *int32) *mycontroller.Foo {
+	return &mycontroller.Foo{
+		TypeMeta: metav1.TypeMeta{APIVersion: mycontroller.SchemeGroupVersion.String()},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: metav1.NamespaceDefault,
 		},
-		Spec: samplecontroller.FooSpec{
+		Spec: mycontroller.FooSpec{
 			DeploymentName: fmt.Sprintf("%s-deployment", name),
 			Replicas:       replicas,
 		},
@@ -235,14 +236,14 @@ func (f *fixture) expectUpdateDeploymentAction(d *apps.Deployment) {
 	f.kubeactions = append(f.kubeactions, core.NewUpdateAction(schema.GroupVersionResource{Resource: "deployments"}, d.Namespace, d))
 }
 
-func (f *fixture) expectUpdateFooStatusAction(foo *samplecontroller.Foo) {
+func (f *fixture) expectUpdateFooStatusAction(foo *mycontroller.Foo) {
 	action := core.NewUpdateAction(schema.GroupVersionResource{Resource: "foos"}, foo.Namespace, foo)
 	// TODO: Until #38113 is merged, we can't use Subresource
 	//action.Subresource = "status"
 	f.actions = append(f.actions, action)
 }
 
-func getKey(foo *samplecontroller.Foo, t *testing.T) string {
+func getKey(foo *mycontroller.Foo, t *testing.T) string {
 	key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(foo)
 	if err != nil {
 		t.Errorf("Unexpected error getting key for foo %v: %v", foo.Name, err)
